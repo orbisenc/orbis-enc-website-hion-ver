@@ -1,0 +1,14 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { feePeriodStateKo } from "@/lib/fees/presentation";
+import { formatPercentFromBasisPoints, formatReferenceMonth, formatSeoulDateTime, formatWon } from "@/lib/format/ko";
+import { listFeePeriods } from "@/server/demo/fee-store";
+import { assertFeeAccess } from "@/server/services/management-fee-auth";
+import { readFeeAccessContext } from "@/server/services/management-fee-session";
+
+export default async function Page({ searchParams }: { searchParams: Promise<{ year?: string; state?: string; warning?: string }> }) {
+  const context=await readFeeAccessContext(); if(!context) redirect("/admin/login"); assertFeeAccess(context,context.tenantId,"VIEW");
+  const filters=await searchParams; let periods=listFeePeriods(context.tenantId);
+  if(filters.year) periods=periods.filter(item=>item.referenceMonth.startsWith(filters.year!)); if(filters.state) periods=periods.filter(item=>item.state===filters.state); if(filters.warning==="yes") periods=periods.filter(item=>item.warningCount>0);
+  return <><h1>월별 관리비</h1><p className="muted">기준월별 부과·수납·미납과 확정·마감 상태를 확인합니다.</p><form className="filter-grid"><label>연도<select className="field" name="year" defaultValue={filters.year??""}><option value="">전체</option><option value="2026">2026년</option><option value="2025">2025년</option></select></label><label>상태<select className="field" name="state" defaultValue={filters.state??""}><option value="">전체</option><option value="IMPORTED">등록 완료</option><option value="CONFIRMED">확정</option><option value="CLOSED">마감</option><option value="REOPENED">재개</option></select></label><label>경고<select className="field" name="warning" defaultValue={filters.warning??""}><option value="">전체</option><option value="yes">확인 필요만</option></select></label><button className="btn">필터 적용</button></form><div className="table-wrap"><table><thead><tr><th>기준월</th><th>상태</th><th>부과 세대</th><th>총 부과액</th><th>총 수납액</th><th>총 미납액</th><th>수납률</th><th>등록</th><th>확정</th><th>마감</th><th>경고</th></tr></thead><tbody>{periods.map(item=><tr key={item.id}><td><Link href={`/admin/fees/monthly/${item.id}`}><strong>{formatReferenceMonth(item.referenceMonth)}</strong></Link></td><td><span className="pill">{feePeriodStateKo(item.state)}</span></td><td>{item.assessedUnitCount.toLocaleString("ko-KR")}세대</td><td>{formatWon(item.finalAssessment)}</td><td>{formatWon(item.netCollected)}</td><td>{formatWon(item.outstanding)}</td><td>{formatPercentFromBasisPoints(item.collectionRateBasisPoints)}</td><td>{item.registeredBy}<br/><small>{formatSeoulDateTime(item.registeredAt)}</small></td><td>{item.confirmedBy??"미확정"}</td><td>{item.closedBy??"미마감"}</td><td>{item.warningCount?`${item.warningCount}건 확인 필요`:"정상"}</td></tr>)}</tbody></table></div>{periods.length===0&&<p className="empty-state">조건에 맞는 관리비 기준월이 없습니다.</p>}</>;
+}

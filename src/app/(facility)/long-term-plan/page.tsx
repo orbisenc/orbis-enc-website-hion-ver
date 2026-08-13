@@ -1,0 +1,4 @@
+import { OperationsPage } from "@/components/facility/operations-page";
+import { mockDashboardData } from "@/data/mockDashboard";
+import { formatWon } from "@/lib/facility";
+export default function LongTermPlanRoute() { const rows = mockDashboardData.assets.filter((asset) => asset.riskScore >= 58).map((asset,index) => ({ id:`ltp-${index+1}`, name:asset.name, year:asset.expectedReplacementAt.slice(0,4), reason:asset.repeatedFailureCount >= 3 ? "반복 고장·비용 증가" : "건전도 저하", budget:formatWon(asset.plannedReplacementCost), funding:"장기수선충당금", status:index === 0 ? "검토 중" : "계획" })); return <OperationsPage title="장기수선계획" subtitle="교체 후보를 연도별 계획과 재원에 연결하고 회의 의결 근거를 보존합니다." columns={[{key:"name",label:"계획 항목"},{key:"year",label:"예정 연도"},{key:"reason",label:"반영 근거"},{key:"budget",label:"계획 금액"},{key:"funding",label:"재원"},{key:"status",label:"상태"}]} rows={rows} />; }

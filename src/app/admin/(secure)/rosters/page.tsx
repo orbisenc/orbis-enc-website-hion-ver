@@ -1,0 +1,3 @@
+import { SectionPage } from "@/components/admin/section-page";
+export default function Page() { return <><SectionPage title="입주민 명부" description="CSV 열 매핑과 중복·누락·형식 오류를 확인한 후 새 버전을 확정합니다. 개인정보는 기본 마스킹됩니다." action="한국어 CSV 양식 내려받기" headers={["버전", "대상 세대", "유효일", "상태", "확정자", "확정 시각"]} rows={[["1", "2,000세대", "2026. 7. 15.", "확정·동결", "관리자", "2026. 7. 15. 09:00"]]} /><section className="card" style={{ marginTop: 20 }}><h2>새 명부 가져오기</h2><label className="field-label" htmlFor="roster">CSV 파일</label><input className="field" id="roster" type="file" accept=".csv,text/csv" /><button className="btn btn-primary" style={{ marginTop: 12 }}>미리보기</button></section></>; }
+

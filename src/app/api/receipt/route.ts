@@ -1,0 +1,2 @@
+import { NextResponse } from "next/server"; import { ResponseService } from "@/server/services/response-service"; import { recordEvent } from "@/server/demo/store";
+export async function GET(request:Request){const token=new URL(request.url).searchParams.get("token")??"";try{const receipt=new ResponseService().getReceipt(token);if(receipt)recordEvent("receipt_viewed");return NextResponse.json({receipt});}catch{return NextResponse.json({error:"영수증을 확인할 수 없습니다."},{status:404});}}

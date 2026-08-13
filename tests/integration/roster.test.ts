@@ -1,0 +1,3 @@
+import { describe, expect, it } from "vitest"; import { previewRoster } from "@/server/services/roster-service";
+describe("명부 CSV",()=>{it("2,000세대 명부를 미리 보고 확정 가능한 결과를 만든다",()=>{const rows=Array.from({length:2000},(_,i)=>({동:`${101+Math.floor(i/400)}`,호:`${Math.floor((i%400)/10)+1}${String((i%10)+1).padStart(2,"0")}`,이름:`가상입주민${i+1}`,연락처:`010-0000-${String(i).padStart(4,"0").slice(-4)}`,권리유형:"소유자"}));const result=previewRoster(rows);expect(result).toMatchObject({total:2000,valid:2000,errors:[]});expect(result.sourceFileHash).toHaveLength(64);});it("중복 세대를 한국어로 설명한다",()=>{const row={동:"101",호:"1203",이름:"가상주민",연락처:"010-0000-1203",권리유형:"소유자"};expect(previewRoster([row,row]).errors[0]?.messageKo).toContain("중복");});});
+

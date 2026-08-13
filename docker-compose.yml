@@ -1,0 +1,19 @@
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: hion
+      POSTGRES_USER: hion
+      POSTGRES_PASSWORD: hion_dev_only
+      TZ: Asia/Seoul
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hion -d hion"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    volumes:
+      - hion_postgres:/var/lib/postgresql/data
+volumes:
+  hion_postgres:

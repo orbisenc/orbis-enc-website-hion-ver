@@ -1,0 +1,3 @@
+import { NextResponse } from "next/server"; import { DEMO_TOKEN, demoAgenda, recordEvent } from "@/server/demo/store";
+import { getDemoCampaignRecord } from "@/server/demo/agenda-campaign-store";
+export async function GET(_request:Request,{params}:{params:Promise<{token:string}>}){const {token}=await params;if(token!==DEMO_TOKEN)return NextResponse.json({error:"초대 링크를 확인할 수 없습니다."},{status:404});const campaign=getDemoCampaignRecord("hion-demo");const now=new Date();if(campaign.status!=="OPEN"||now<new Date(campaign.startsAt)||now>new Date(campaign.endsAt))return NextResponse.json({error:"현재 응답할 수 없는 안건입니다."},{status:409});recordEvent("invite_opened");return NextResponse.json({agenda:demoAgenda});}

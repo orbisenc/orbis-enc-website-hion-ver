@@ -1,0 +1,1 @@
+export default function Loading() { return <><h1>관리비 대시보드</h1><div className="stats" aria-label="관리비 정보를 불러오는 중">{Array.from({length:8},(_,index)=><div className="stat skeleton" key={index}>관리비 정보를 불러오는 중…</div>)}</div></>; }

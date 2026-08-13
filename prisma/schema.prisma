@@ -1,0 +1,1426 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum AdminRole {
+  PLATFORM_ADMIN
+  COMPLEX_ADMIN
+  ACCOUNTING_MANAGER
+  CONTENT_EDITOR
+  APPROVER
+  AUDITOR
+}
+
+enum ManagementFeePeriodState {
+  DRAFT
+  IMPORTED
+  CONFIRMED
+  CLOSED
+  REOPENED
+}
+
+enum ManagementFeeCategoryType {
+  COMMON
+  INDIVIDUAL
+  RESERVE
+  OTHER
+}
+
+enum FeeAllocationType {
+  COMMON
+  INDIVIDUAL
+  UNIT_AREA
+  VOTING_RIGHT
+  NONE
+}
+
+enum ManagementFeeImportType {
+  ASSESSMENT
+  COLLECTION
+}
+
+enum ManagementFeeImportStatus {
+  UPLOADED
+  VALIDATED
+  CONFIRMED
+  REJECTED
+}
+
+enum ManagementFeeImportErrorSeverity {
+  WARNING
+  BLOCKING
+}
+
+enum ManagementFeeTransactionType {
+  PAYMENT
+  REFUND
+}
+
+enum ManagementFeeMatchingState {
+  MATCHED
+  UNMATCHED
+  OVERPAID
+}
+
+enum ManagementFeeRecordState {
+  ACTIVE
+  INVALIDATED
+}
+
+enum ManagementFeeAdjustmentState {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ManagementFeeBudgetState {
+  DRAFT
+  CONFIRMED
+  ARCHIVED
+}
+
+enum AgendaState {
+  DRAFT
+  IN_REVIEW
+  APPROVED
+  PUBLISHED
+  CLOSED
+  ARCHIVED
+}
+
+enum CampaignStatus {
+  DRAFT
+  SCHEDULED
+  OPEN
+  PAUSED
+  CLOSED
+  FINALIZED
+  ARCHIVED
+}
+
+enum CampaignTargetStatus {
+  IMPORTED
+  INVITED
+  OPENED
+  VERIFIED
+  RESPONDED
+  INVALID
+  WITHDRAWN
+}
+
+enum ResponseState {
+  ACTIVE
+  SUPERSEDED
+  WITHDRAWN
+  INVALIDATED
+}
+
+enum ProcessingState {
+  UPLOADED
+  PROCESSING
+  READY
+  REJECTED
+  ARCHIVED
+}
+
+enum CampaignMode {
+  OPINION
+  MANAGEMENT_VOTE
+  LEGAL_CONSENT
+}
+
+enum AssetType {
+  MODEL_3D
+  VIDEO
+  IMAGE
+  DOCUMENT
+}
+
+enum RosterState {
+  DRAFT
+  CONFIRMED
+  FROZEN
+  ARCHIVED
+}
+
+enum InvitationState {
+  CREATED
+  SENT
+  DELIVERED
+  FAILED
+  OPENED
+}
+
+enum VerificationLevel {
+  SIMPLE_OTP
+  IDENTITY_MATCH
+  STRONG_SIGNATURE
+}
+
+enum VerificationState {
+  REQUESTED
+  SUCCEEDED
+  FAILED
+  EXPIRED
+}
+
+enum NotificationChannel {
+  SMS
+  EMAIL
+  PUSH
+}
+
+enum NotificationState {
+  QUEUED
+  SENT
+  DELIVERED
+  FAILED
+}
+
+enum RightType {
+  OWNER
+  TENANT
+  PROXY
+  CO_OWNER
+}
+
+enum FacilityAssetStatus {
+  NORMAL
+  ATTENTION
+  WARNING
+  INSPECTION
+  STOPPED
+  RETIRED
+}
+
+enum FacilityImportance {
+  LOW
+  NORMAL
+  HIGH
+  CRITICAL
+}
+
+enum FacilityInspectionStatus {
+  SCHEDULED
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  REJECTED
+  REINSPECTION
+  OVERDUE
+}
+
+enum FacilityWorkOrderStatus {
+  RECEIVED
+  TRIAGED
+  PENDING_APPROVAL
+  ASSIGNED
+  IN_PROGRESS
+  INSPECTION_REQUESTED
+  COMPLETED
+  CLOSED
+  ON_HOLD
+  CANCELED
+}
+
+enum FacilityProjectStatus {
+  DRAFT
+  BIDDING
+  CONTRACTED
+  IN_PROGRESS
+  INSPECTION
+  COMPLETED
+  ON_HOLD
+  CANCELED
+}
+
+enum FacilityVisibility {
+  INTERNAL
+  COMMITTEE
+  RESIDENT
+  PUBLIC
+}
+
+enum FacilityDecisionStatus {
+  REVIEW
+  RESOLVED
+  ON_HOLD
+  REJECTED
+}
+
+model Tenant {
+  id                         String                     @id @default(cuid())
+  name                       String
+  code                       String                     @unique
+  branding                   Json?
+  status                     TenantStatus               @default(ACTIVE)
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+  memberships                TenantMembership[]
+  complexes                  Complex[]
+  agendas                    Agenda[]
+  campaigns                  Campaign[]
+  auditEvents                AuditEvent[]
+  managementFeePeriods       ManagementFeePeriod[]
+  managementFeeCategories    ManagementFeeCategory[]
+  managementFeeImportBatches ManagementFeeImportBatch[]
+  managementFeeBudgets       ManagementFeeBudget[]
+  agendaCostImpacts          AgendaCostImpact[]
+}
+
+model AdminUser {
+  id             String             @id @default(cuid())
+  email          String             @unique
+  name           String
+  passwordHash   String
+  mfaEnabled     Boolean            @default(true)
+  mfaSecretHash  String?
+  failedAttempts Int                @default(0)
+  lockedUntil    DateTime?
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  memberships    TenantMembership[]
+}
+
+model TenantMembership {
+  id        String    @id @default(cuid())
+  tenantId  String
+  adminId   String
+  role      AdminRole
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
+  admin     AdminUser @relation(fields: [adminId], references: [id])
+
+  @@unique([tenantId, adminId, role])
+  @@index([adminId, tenantId])
+}
+
+model SupportAccessGrant {
+  id        String   @id @default(cuid())
+  tenantId  String
+  adminId   String
+  purpose   String
+  approver  String
+  startsAt  DateTime
+  endsAt    DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([tenantId, adminId, startsAt, endsAt])
+}
+
+model Complex {
+  id                   String                @id @default(cuid())
+  tenantId             String
+  name                 String
+  address              String
+  contactName          String
+  contactPhone         String
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime              @updatedAt
+  tenant               Tenant                @relation(fields: [tenantId], references: [id])
+  buildings            Building[]
+  rosters              RosterVersion[]
+  managementFeePeriods ManagementFeePeriod[]
+
+  @@unique([tenantId, name])
+  @@index([tenantId])
+}
+
+model Building {
+  id          String   @id @default(cuid())
+  tenantId    String
+  complexId   String
+  code        String
+  displayName String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  complex     Complex  @relation(fields: [complexId], references: [id])
+  units       Unit[]
+
+  @@unique([complexId, code])
+  @@index([tenantId, complexId])
+}
+
+model Unit {
+  id                       String                    @id @default(cuid())
+  tenantId                 String
+  buildingId               String
+  code                     String
+  displayName              String
+  status                   String                    @default("사용")
+  createdAt                DateTime                  @default(now())
+  updatedAt                DateTime                  @updatedAt
+  building                 Building                  @relation(fields: [buildingId], references: [id])
+  eligibilities            Eligibility[]
+  managementFeeAssessments ManagementFeeAssessment[]
+  managementFeePayments    ManagementFeePayment[]
+  managementFeeAdjustments ManagementFeeAdjustment[]
+
+  @@unique([buildingId, code])
+  @@index([tenantId, buildingId])
+}
+
+model Person {
+  id               String        @id @default(cuid())
+  tenantId         String
+  name             String
+  encryptedContact String
+  searchHash       String
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+  eligibilities    Eligibility[]
+
+  @@unique([tenantId, searchHash])
+  @@index([tenantId])
+}
+
+model RosterVersion {
+  id             String        @id @default(cuid())
+  tenantId       String
+  complexId      String
+  version        Int
+  sourceFileHash String
+  state          RosterState   @default(DRAFT)
+  effectiveDate  DateTime
+  confirmedBy    String?
+  confirmedAt    DateTime?
+  frozenAt       DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  complex        Complex       @relation(fields: [complexId], references: [id])
+  eligibilities  Eligibility[]
+  campaigns      Campaign[]
+
+  @@unique([complexId, version])
+  @@index([tenantId, state])
+}
+
+model Eligibility {
+  id            String           @id @default(cuid())
+  tenantId      String
+  rosterId      String
+  personId      String
+  unitId        String
+  rightType     RightType
+  rightCount    Decimal          @default(1) @db.Decimal(8, 3)
+  validFrom     DateTime
+  validUntil    DateTime?
+  proxyMetadata Json?
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  roster        RosterVersion    @relation(fields: [rosterId], references: [id])
+  person        Person           @relation(fields: [personId], references: [id])
+  unit          Unit             @relation(fields: [unitId], references: [id])
+  targets       CampaignTarget[]
+
+  @@unique([rosterId, personId, unitId, rightType])
+  @@index([tenantId, rosterId, unitId])
+}
+
+model Asset {
+  id        String         @id @default(cuid())
+  tenantId  String
+  type      AssetType
+  name      String
+  scope     String
+  status    String         @default("사용")
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  versions  AssetVersion[]
+
+  @@index([tenantId, type])
+}
+
+model AssetVersion {
+  id              String          @id @default(cuid())
+  tenantId        String
+  assetId         String
+  version         Int
+  path            String
+  mimeType        String
+  size            BigInt
+  sha256          String
+  processingState ProcessingState @default(UPLOADED)
+  thumbnailPath   String?
+  altTextKo       String
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  asset           Asset           @relation(fields: [assetId], references: [id])
+  scenes          ViewerScene[]
+
+  @@unique([assetId, version])
+  @@index([tenantId, processingState])
+}
+
+model ViewerScene {
+  id             String       @id @default(cuid())
+  tenantId       String
+  assetVersionId String
+  initialCamera  Json
+  rotationCenter Json
+  background     String
+  beforeAfter    Json
+  fallbackImage  String
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  assetVersion   AssetVersion @relation(fields: [assetVersionId], references: [id])
+  hotspots       Hotspot[]
+
+  @@index([tenantId, assetVersionId])
+}
+
+model Hotspot {
+  id            String      @id @default(cuid())
+  tenantId      String
+  sceneId       String
+  x             Float
+  y             Float
+  z             Float
+  titleKo       String
+  descriptionKo String
+  cameraPreset  Json?
+  sortOrder     Int
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  scene         ViewerScene @relation(fields: [sceneId], references: [id])
+
+  @@index([tenantId, sceneId, sortOrder])
+}
+
+model Agenda {
+  id        String          @id @default(cuid())
+  tenantId  String
+  titleKo   String
+  type      String
+  state     AgendaState     @default(DRAFT)
+  ownerId   String
+  createdAt DateTime        @default(now())
+  updatedAt DateTime        @updatedAt
+  tenant    Tenant          @relation(fields: [tenantId], references: [id])
+  versions  AgendaVersion[]
+
+  @@index([tenantId, state])
+}
+
+model AgendaVersion {
+  id                 String             @id @default(cuid())
+  tenantId           String
+  agendaId           String
+  version            Int
+  summaryKo          String
+  backgroundKo       String
+  changeScopeKo      String
+  benefitKo          String
+  scheduleKo         String
+  cautionsKo         String
+  contactKo          String
+  consentTextKo      String
+  options            Json
+  contentManifest    Json
+  contentHash        String
+  approvalState      AgendaState        @default(DRAFT)
+  reviewerFeedbackKo String?
+  publishedAt        DateTime?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  agenda             Agenda             @relation(fields: [agendaId], references: [id])
+  campaigns          Campaign[]
+  costImpacts        AgendaCostImpact[]
+
+  @@unique([agendaId, version])
+  @@index([tenantId, approvalState])
+}
+
+model Campaign {
+  id                  String            @id @default(cuid())
+  tenantId            String
+  nameKo              String
+  agendaVersionId     String
+  rosterVersionId     String
+  startsAt            DateTime
+  endsAt              DateTime
+  mode                CampaignMode
+  verificationLevel   VerificationLevel
+  anonymous           Boolean           @default(false)
+  allowResponseChange Boolean           @default(false)
+  allowWithdrawal     Boolean           @default(false)
+  quorumRule          Json
+  resultDisclosure    String
+  status              CampaignStatus    @default(DRAFT)
+  publishedAt         DateTime?
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+  tenant              Tenant            @relation(fields: [tenantId], references: [id])
+  agendaVersion       AgendaVersion     @relation(fields: [agendaVersionId], references: [id])
+  rosterVersion       RosterVersion     @relation(fields: [rosterVersionId], references: [id])
+  targets             CampaignTarget[]
+  invitations         Invitation[]
+  responses           Response[]
+
+  @@index([tenantId, status, startsAt, endsAt])
+}
+
+model CampaignTarget {
+  id                String               @id @default(cuid())
+  tenantId          String
+  campaignId        String
+  eligibilityId     String
+  status            CampaignTargetStatus @default(IMPORTED)
+  currentResponseId String?              @unique
+  followUpCount     Int                  @default(0)
+  lastFollowUpAt    DateTime?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+  campaign          Campaign             @relation(fields: [campaignId], references: [id])
+  eligibility       Eligibility          @relation(fields: [eligibilityId], references: [id])
+  currentResponse   Response?            @relation("CurrentResponse", fields: [currentResponseId], references: [id])
+  responses         Response[]           @relation("TargetResponses")
+  verifications     Verification[]
+  invitations       Invitation[]
+
+  @@unique([campaignId, eligibilityId])
+  @@index([tenantId, campaignId, status])
+}
+
+model Invitation {
+  id          String              @id @default(cuid())
+  tenantId    String
+  campaignId  String
+  targetId    String
+  tokenHash   String              @unique
+  channel     NotificationChannel
+  state       InvitationState     @default(CREATED)
+  expiresAt   DateTime
+  sentAt      DateTime?
+  deliveredAt DateTime?
+  openedAt    DateTime?
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  campaign    Campaign            @relation(fields: [campaignId], references: [id])
+  target      CampaignTarget      @relation(fields: [targetId], references: [id])
+
+  @@index([tenantId, campaignId, state])
+}
+
+model Verification {
+  id                    String            @id @default(cuid())
+  tenantId              String
+  targetId              String
+  provider              String
+  externalTransactionId String
+  resultCode            String
+  state                 VerificationState
+  verifiedAt            DateTime?
+  metadata              Json
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  target                CampaignTarget    @relation(fields: [targetId], references: [id])
+  evidence              ConsentEvidence[]
+
+  @@index([tenantId, targetId, state])
+}
+
+model Response {
+  id             String           @id @default(cuid())
+  tenantId       String
+  campaignId     String
+  targetId       String
+  selectedOption String
+  commentKo      String?
+  submittedAt    DateTime         @default(now())
+  state          ResponseState    @default(ACTIVE)
+  previousId     String?
+  idempotencyKey String
+  receiptNumber  String           @unique
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  campaign       Campaign         @relation(fields: [campaignId], references: [id])
+  target         CampaignTarget   @relation("TargetResponses", fields: [targetId], references: [id])
+  currentFor     CampaignTarget?  @relation("CurrentResponse")
+  previous       Response?        @relation("ResponseHistory", fields: [previousId], references: [id])
+  revisions      Response[]       @relation("ResponseHistory")
+  evidence       ConsentEvidence?
+
+  @@unique([campaignId, idempotencyKey])
+  @@index([tenantId, campaignId, targetId, state])
+}
+
+model ConsentEvidence {
+  id                  String       @id @default(cuid())
+  tenantId            String
+  responseId          String       @unique
+  verificationId      String
+  agendaHash          String
+  consentTextHash     String
+  contentManifestHash String
+  serverTimestamp     DateTime     @default(now())
+  sealHash            String
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  response            Response     @relation(fields: [responseId], references: [id])
+  verification        Verification @relation(fields: [verificationId], references: [id])
+
+  @@index([tenantId, serverTimestamp])
+}
+
+model NotificationEvent {
+  id             String              @id @default(cuid())
+  tenantId       String
+  targetId       String?
+  channel        NotificationChannel
+  templateKo     String
+  providerResult Json
+  state          NotificationState
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([tenantId, state, createdAt])
+}
+
+model AuditEvent {
+  id          String   @id @default(cuid())
+  tenantId    String
+  actorId     String
+  actorRole   String
+  action      String
+  objectType  String
+  objectId    String
+  beforeValue Json?
+  afterValue  Json?
+  ipAddress   String?
+  userAgent   String?
+  reasonKo    String?
+  occurredAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  tenant      Tenant   @relation(fields: [tenantId], references: [id])
+
+  @@index([tenantId, occurredAt])
+  @@index([tenantId, action, objectType])
+}
+
+model AnalyticsEvent {
+  id         String   @id @default(cuid())
+  tenantId   String
+  campaignId String?
+  eventName  String
+  occurredAt DateTime @default(now())
+  metadata   Json?
+
+  @@index([tenantId, eventName, occurredAt])
+}
+
+model ManagementFeePeriod {
+  id                         String                     @id @default(cuid())
+  tenantId                   String
+  complexId                  String
+  referenceMonth             String
+  state                      ManagementFeePeriodState   @default(DRAFT)
+  sourceAssessmentAmount     BigInt                     @default(0)
+  sourceCollectionAmount     BigInt                     @default(0)
+  calculatedAssessmentAmount BigInt                     @default(0)
+  calculatedCollectionAmount BigInt                     @default(0)
+  assessedUnitCount          Int                        @default(0)
+  warningCount               Int                        @default(0)
+  registeredBy               String
+  registeredAt               DateTime                   @default(now())
+  confirmedBy                String?
+  confirmedAt                DateTime?
+  closedBy                   String?
+  closedAt                   DateTime?
+  reopenedBy                 String?
+  reopenedAt                 DateTime?
+  closingReasonKo            String?
+  reopeningReasonKo          String?
+  closingSnapshot            Json?
+  closingSnapshotHash        String?
+  createdAt                  DateTime                   @default(now())
+  updatedAt                  DateTime                   @updatedAt
+  tenant                     Tenant                     @relation(fields: [tenantId], references: [id])
+  complex                    Complex                    @relation(fields: [complexId], references: [id])
+  assessments                ManagementFeeAssessment[]
+  payments                   ManagementFeePayment[]
+  adjustments                ManagementFeeAdjustment[]
+  importBatches              ManagementFeeImportBatch[]
+  budgets                    ManagementFeeBudget[]
+
+  @@unique([tenantId, complexId, referenceMonth])
+  @@index([tenantId, complexId, state, referenceMonth])
+}
+
+model ManagementFeeCategory {
+  id                 String                    @id @default(cuid())
+  tenantId           String
+  code               String
+  nameKo             String
+  descriptionKo      String?
+  type               ManagementFeeCategoryType
+  allocationType     FeeAllocationType
+  active             Boolean                   @default(true)
+  displayOrder       Int
+  includeInDashboard Boolean                   @default(true)
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  tenant             Tenant                    @relation(fields: [tenantId], references: [id])
+  assessments        ManagementFeeAssessment[]
+  adjustments        ManagementFeeAdjustment[]
+  budgets            ManagementFeeBudget[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, active, displayOrder])
+}
+
+model ManagementFeeAssessment {
+  id             String                   @id @default(cuid())
+  tenantId       String
+  periodId       String
+  unitId         String
+  categoryId     String
+  originalAmount BigInt
+  externalLineId String
+  sourceRowHash  String
+  importBatchId  String
+  state          ManagementFeeRecordState @default(ACTIVE)
+  createdAt      DateTime                 @default(now())
+  period         ManagementFeePeriod      @relation(fields: [periodId], references: [id])
+  unit           Unit                     @relation(fields: [unitId], references: [id])
+  category       ManagementFeeCategory    @relation(fields: [categoryId], references: [id])
+  importBatch    ManagementFeeImportBatch @relation(fields: [importBatchId], references: [id])
+
+  @@unique([periodId, externalLineId])
+  @@index([tenantId, periodId, unitId, categoryId, state])
+}
+
+model ManagementFeePayment {
+  id                String                       @id @default(cuid())
+  tenantId          String
+  periodId          String
+  unitId            String
+  transactionType   ManagementFeeTransactionType
+  amount            BigInt
+  transactionDate   DateTime
+  externalReference String
+  importBatchId     String
+  matchingState     ManagementFeeMatchingState   @default(MATCHED)
+  state             ManagementFeeRecordState     @default(ACTIVE)
+  createdAt         DateTime                     @default(now())
+  period            ManagementFeePeriod          @relation(fields: [periodId], references: [id])
+  unit              Unit                         @relation(fields: [unitId], references: [id])
+  importBatch       ManagementFeeImportBatch     @relation(fields: [importBatchId], references: [id])
+
+  @@unique([tenantId, externalReference])
+  @@index([tenantId, periodId, unitId, transactionDate, state])
+}
+
+model ManagementFeeAdjustment {
+  id         String                       @id @default(cuid())
+  tenantId   String
+  periodId   String
+  unitId     String
+  categoryId String?
+  amount     BigInt
+  reasonKo   String
+  createdBy  String
+  createdAt  DateTime                     @default(now())
+  approvedBy String?
+  approvedAt DateTime?
+  state      ManagementFeeAdjustmentState @default(PENDING)
+  period     ManagementFeePeriod          @relation(fields: [periodId], references: [id])
+  unit       Unit                         @relation(fields: [unitId], references: [id])
+  category   ManagementFeeCategory?       @relation(fields: [categoryId], references: [id])
+
+  @@index([tenantId, periodId, unitId, state])
+}
+
+model ManagementFeeImportBatch {
+  id                          String                     @id @default(cuid())
+  tenantId                    String
+  periodId                    String
+  type                        ManagementFeeImportType
+  originalFilename            String
+  fileHash                    String
+  encoding                    String
+  rowCount                    Int
+  validRowCount               Int                        @default(0)
+  warningCount                Int                        @default(0)
+  blockingErrorCount          Int                        @default(0)
+  sourceTotal                 BigInt                     @default(0)
+  calculatedTotal             BigInt                     @default(0)
+  status                      ManagementFeeImportStatus  @default(UPLOADED)
+  uploadedBy                  String
+  uploadedAt                  DateTime                   @default(now())
+  confirmedBy                 String?
+  confirmedAt                 DateTime?
+  warningConfirmationReasonKo String?
+  tenant                      Tenant                     @relation(fields: [tenantId], references: [id])
+  period                      ManagementFeePeriod        @relation(fields: [periodId], references: [id])
+  assessments                 ManagementFeeAssessment[]
+  payments                    ManagementFeePayment[]
+  errors                      ManagementFeeImportError[]
+
+  @@unique([tenantId, fileHash])
+  @@index([tenantId, periodId, type, status])
+}
+
+model ManagementFeeImportError {
+  id                  String                           @id @default(cuid())
+  tenantId            String
+  batchId             String
+  sourceRowNumber     Int
+  sourceColumn        String?
+  severity            ManagementFeeImportErrorSeverity
+  errorCodeKo         String
+  messageKo           String
+  maskedSourceSummary String?
+  createdAt           DateTime                         @default(now())
+  batch               ManagementFeeImportBatch         @relation(fields: [batchId], references: [id])
+
+  @@index([tenantId, batchId, severity, sourceRowNumber])
+}
+
+model ManagementFeeBudget {
+  id            String                   @id @default(cuid())
+  tenantId      String
+  periodId      String
+  categoryId    String
+  fiscalYear    Int
+  version       Int
+  plannedAmount BigInt
+  actualAmount  BigInt?
+  state         ManagementFeeBudgetState @default(DRAFT)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+  tenant        Tenant                   @relation(fields: [tenantId], references: [id])
+  period        ManagementFeePeriod      @relation(fields: [periodId], references: [id])
+  category      ManagementFeeCategory    @relation(fields: [categoryId], references: [id])
+
+  @@unique([periodId, categoryId, version])
+  @@index([tenantId, fiscalYear, state])
+}
+
+model AgendaCostImpact {
+  id                        String            @id @default(cuid())
+  tenantId                  String
+  agendaVersionId           String
+  version                   Int
+  estimatedProjectCost      BigInt
+  actualProjectCost         BigInt?
+  fundingSourceKo           String
+  usesLongTermRepairReserve Boolean
+  requiresAdditionalFee     Boolean
+  allocationType            FeeAllocationType
+  estimatedAmountPerUnit    BigInt?
+  allocationRule            Json
+  expectedBillingStartMonth String?
+  installmentCount          Int               @default(1)
+  residentExplanationKo     String
+  calculationSnapshot       Json
+  versionHash               String
+  approved                  Boolean           @default(false)
+  approvedBy                String?
+  approvedAt                DateTime?
+  createdAt                 DateTime          @default(now())
+  tenant                    Tenant            @relation(fields: [tenantId], references: [id])
+  agendaVersion             AgendaVersion     @relation(fields: [agendaVersionId], references: [id])
+
+  @@unique([agendaVersionId, version])
+  @@index([tenantId, agendaVersionId, approved])
+}
+
+model FacilityUser {
+  id           String   @id @default(cuid())
+  tenantId     String
+  complexId    String
+  email        String
+  name         String
+  roleCode     String
+  passwordHash String
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  deletedAt    DateTime?
+
+  @@unique([tenantId, email])
+  @@index([tenantId, complexId, roleCode, active])
+}
+
+model FacilitySpace {
+  id          String   @id @default(cuid())
+  tenantId    String
+  complexId   String
+  buildingId  String
+  floorCode   String
+  nameKo      String
+  useCode     String
+  areaSquareM Decimal? @db.Decimal(12, 2)
+  modelObjectId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  retiredAt   DateTime?
+  assets      FacilityAsset[]
+
+  @@unique([tenantId, complexId, buildingId, floorCode, nameKo])
+  @@index([tenantId, complexId, buildingId, floorCode])
+}
+
+model FacilityAssetCategory {
+  id           String   @id @default(cuid())
+  tenantId     String
+  code         String
+  nameKo       String
+  descriptionKo String?
+  active       Boolean  @default(true)
+  displayOrder Int
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  types        FacilityAssetType[]
+  assets       FacilityAsset[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, active, displayOrder])
+}
+
+model FacilityAssetType {
+  id             String                @id @default(cuid())
+  tenantId       String
+  categoryId     String
+  code           String
+  nameKo         String
+  defaultLifeYears Int
+  inspectionCycleDays Int
+  active         Boolean               @default(true)
+  createdAt      DateTime              @default(now())
+  updatedAt      DateTime              @updatedAt
+  category       FacilityAssetCategory @relation(fields: [categoryId], references: [id])
+  assets         FacilityAsset[]
+
+  @@unique([tenantId, code])
+  @@index([tenantId, categoryId, active])
+}
+
+model FacilityAsset {
+  id                        String                @id
+  tenantId                  String
+  complexId                 String
+  categoryId                String
+  assetTypeId               String
+  spaceId                   String?
+  assetCode                 String
+  nameKo                    String
+  buildingCode              String
+  floorCode                 String
+  locationKo                String
+  modelObjectId             String?
+  manufacturer              String
+  modelName                 String
+  serialNumber              String
+  externalSystemKey         String?
+  installedAt               DateTime
+  warrantyEndAt             DateTime?
+  expectedLifeYears         Int
+  inspectionCycleDays       Int
+  recommendedReplaceAt      DateTime
+  importance                FacilityImportance
+  status                    FacilityAssetStatus
+  healthScore               Int
+  riskScore                 Int
+  lastInspectedAt           DateTime?
+  nextInspectionAt          DateTime
+  lastMaintainedAt          DateTime?
+  cumulativeMaintenanceWon  BigInt                @default(0)
+  plannedReplacementWon     BigInt                @default(0)
+  replacedAssetId           String?               @unique
+  createdBy                 String
+  updatedBy                 String
+  createdAt                 DateTime              @default(now())
+  updatedAt                 DateTime              @updatedAt
+  retiredAt                 DateTime?
+  category                  FacilityAssetCategory @relation(fields: [categoryId], references: [id])
+  assetType                 FacilityAssetType     @relation(fields: [assetTypeId], references: [id])
+  space                     FacilitySpace?        @relation(fields: [spaceId], references: [id])
+  predecessor               FacilityAsset?        @relation("FacilityAssetSuccessor", fields: [replacedAssetId], references: [id])
+  successor                 FacilityAsset?        @relation("FacilityAssetSuccessor")
+  relationsFrom             FacilityAssetRelation[] @relation("FacilityAssetRelationFrom")
+  relationsTo               FacilityAssetRelation[] @relation("FacilityAssetRelationTo")
+  events                    FacilityAssetEvent[]
+  inspections               FacilityInspectionTask[]
+  incidents                 FacilityIncident[]
+  workOrders                FacilityWorkOrder[]
+  replacementCandidate      FacilityReplacementCandidate?
+  longTermPlanItems         FacilityLongTermPlanItem[]
+  documents                 FacilityDocument[]
+  complaints                FacilityComplaint[]
+
+  @@unique([tenantId, complexId, assetCode])
+  @@unique([tenantId, serialNumber])
+  @@index([tenantId, complexId, categoryId, status])
+  @@index([tenantId, complexId, nextInspectionAt])
+  @@index([tenantId, complexId, riskScore])
+}
+
+model FacilityAssetRelation {
+  id          String        @id @default(cuid())
+  tenantId    String
+  fromAssetId String
+  toAssetId   String
+  relationCode String
+  descriptionKo String?
+  createdAt   DateTime      @default(now())
+  fromAsset   FacilityAsset @relation("FacilityAssetRelationFrom", fields: [fromAssetId], references: [id])
+  toAsset     FacilityAsset @relation("FacilityAssetRelationTo", fields: [toAssetId], references: [id])
+
+  @@unique([tenantId, fromAssetId, toAssetId, relationCode])
+  @@index([tenantId, fromAssetId])
+  @@index([tenantId, toAssetId])
+}
+
+model FacilityAssetEvent {
+  id          String        @id @default(cuid())
+  tenantId    String
+  assetId     String
+  eventCode   String
+  titleKo     String
+  descriptionKo String
+  sourceType  String
+  sourceId    String?
+  occurredAt  DateTime
+  actorId     String
+  snapshot    Json?
+  createdAt   DateTime      @default(now())
+  asset       FacilityAsset @relation(fields: [assetId], references: [id])
+
+  @@index([tenantId, assetId, occurredAt])
+  @@index([tenantId, sourceType, sourceId])
+}
+
+model FacilityInspectionTask {
+  id             String                   @id @default(cuid())
+  tenantId       String
+  complexId      String
+  assetId        String
+  templateCode   String
+  titleKo        String
+  scheduledAt    DateTime
+  dueAt          DateTime
+  assigneeId     String
+  status         FacilityInspectionStatus @default(SCHEDULED)
+  checklist      Json
+  sourceTaskId   String?
+  createdBy      String
+  updatedBy      String
+  createdAt      DateTime                 @default(now())
+  updatedAt      DateTime                 @updatedAt
+  deletedAt      DateTime?
+  asset          FacilityAsset            @relation(fields: [assetId], references: [id])
+  result         FacilityInspectionResult?
+
+  @@index([tenantId, complexId, status, dueAt])
+  @@index([tenantId, assigneeId, scheduledAt])
+}
+
+model FacilityInspectionResult {
+  id             String                 @id @default(cuid())
+  tenantId       String
+  taskId         String                 @unique
+  version        Int
+  resultCode     String
+  measurements   Json
+  notesKo        String?
+  evidence       Json
+  confirmerName  String
+  submittedAt    DateTime
+  approvedBy     String?
+  approvedAt     DateTime?
+  rejectedReasonKo String?
+  previousResultId String?
+  createdAt      DateTime               @default(now())
+  task           FacilityInspectionTask @relation(fields: [taskId], references: [id])
+  incidents      FacilityIncident[]
+
+  @@index([tenantId, submittedAt])
+}
+
+model FacilityIncident {
+  id                 String                    @id @default(cuid())
+  tenantId           String
+  complexId          String
+  assetId            String
+  inspectionResultId String?
+  titleKo            String
+  severityCode       String
+  descriptionKo      String
+  occurredAt         DateTime
+  resolvedAt         DateTime?
+  createdBy          String
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+  asset              FacilityAsset             @relation(fields: [assetId], references: [id])
+  inspectionResult   FacilityInspectionResult? @relation(fields: [inspectionResultId], references: [id])
+  workOrders         FacilityWorkOrder[]
+
+  @@index([tenantId, complexId, severityCode, occurredAt])
+  @@index([tenantId, assetId])
+}
+
+model FacilityWorkOrder {
+  id                 String                  @id
+  tenantId           String
+  complexId          String
+  assetId            String
+  incidentId         String?
+  sourceType         String
+  sourceId           String
+  titleKo            String
+  descriptionKo      String
+  severityCode       String
+  urgencyCode        String
+  impactKo           String
+  safetyRiskKo       String
+  assigneeId         String?
+  vendorId           String?
+  targetAt           DateTime
+  slaMinutes         Int
+  estimatedCostWon   BigInt                  @default(0)
+  actualCostWon      BigInt                  @default(0)
+  completionSummaryKo String?
+  evidence           Json
+  status             FacilityWorkOrderStatus @default(RECEIVED)
+  completedAt        DateTime?
+  closedAt           DateTime?
+  createdBy          String
+  updatedBy          String
+  createdAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+  deletedAt          DateTime?
+  asset              FacilityAsset           @relation(fields: [assetId], references: [id])
+  incident           FacilityIncident?       @relation(fields: [incidentId], references: [id])
+  logs               FacilityWorkLog[]
+  complaints         FacilityComplaint[]
+
+  @@index([tenantId, complexId, status, targetAt])
+  @@index([tenantId, assigneeId, status])
+  @@index([tenantId, vendorId, status])
+}
+
+model FacilityWorkLog {
+  id          String            @id @default(cuid())
+  tenantId    String
+  workOrderId String
+  actorId     String
+  actionCode  String
+  notesKo     String
+  laborMinutes Int              @default(0)
+  parts       Json
+  evidence    Json
+  costWon     BigInt            @default(0)
+  occurredAt  DateTime
+  createdAt   DateTime          @default(now())
+  workOrder   FacilityWorkOrder @relation(fields: [workOrderId], references: [id])
+
+  @@index([tenantId, workOrderId, occurredAt])
+}
+
+model FacilityReplacementCandidate {
+  id                    String        @id @default(cuid())
+  tenantId              String
+  complexId             String
+  assetId               String        @unique
+  conditionScore        Int
+  repeatedFailureScore  Int
+  criticalityScore      Int
+  maintenanceCostScore  Int
+  residentImpactScore   Int
+  overdueScore          Int
+  totalRiskScore        Int
+  scenarioSnapshot      Json
+  recommendationCode    String
+  statusCode            String
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
+  asset                 FacilityAsset @relation(fields: [assetId], references: [id])
+
+  @@index([tenantId, complexId, totalRiskScore])
+}
+
+model FacilityLongTermPlan {
+  id          String                     @id @default(cuid())
+  tenantId    String
+  complexId   String
+  titleKo     String
+  fiscalStartYear Int
+  fiscalEndYear Int
+  version     Int
+  statusCode  String
+  approvedBy  String?
+  approvedAt  DateTime?
+  createdAt   DateTime                   @default(now())
+  updatedAt   DateTime                   @updatedAt
+  items       FacilityLongTermPlanItem[]
+
+  @@unique([tenantId, complexId, version])
+  @@index([tenantId, complexId, statusCode])
+}
+
+model FacilityLongTermPlanItem {
+  id              String                @id @default(cuid())
+  tenantId        String
+  planId          String
+  assetId         String
+  plannedYear     Int
+  plannedCostWon  BigInt
+  fundingSourceKo String
+  rationaleKo     String
+  statusCode      String
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  plan            FacilityLongTermPlan  @relation(fields: [planId], references: [id])
+  asset           FacilityAsset         @relation(fields: [assetId], references: [id])
+
+  @@unique([planId, assetId])
+  @@index([tenantId, plannedYear, statusCode])
+}
+
+model FacilityProject {
+  id               String                @id @default(cuid())
+  tenantId         String
+  complexId        String
+  titleKo          String
+  purposeKo        String
+  scopeKo          String
+  relatedAssetIds  Json
+  startsAt         DateTime
+  endsAt           DateTime
+  approvedBudgetWon BigInt
+  contractedWon    BigInt                @default(0)
+  executedWon      BigInt                @default(0)
+  vendorId         String?
+  status           FacilityProjectStatus @default(DRAFT)
+  contractSnapshot Json?
+  completionEvidence Json?
+  warrantyEndsAt   DateTime?
+  createdBy        String
+  updatedBy        String
+  createdAt        DateTime              @default(now())
+  updatedAt        DateTime              @updatedAt
+  deletedAt        DateTime?
+
+  @@index([tenantId, complexId, status, startsAt])
+}
+
+model FacilityComplaint {
+  id              String             @id @default(cuid())
+  tenantId        String
+  complexId       String
+  residentKeyHash String
+  assetId         String?
+  workOrderId     String?
+  categoryCode    String
+  titleKo         String
+  descriptionKo   String
+  buildingCode    String
+  locationKo      String
+  attachment      Json?
+  internalNotesKo String?
+  publicProgressKo String
+  finalResponseKo String?
+  statusCode      String
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+  closedAt        DateTime?
+  deletedAt       DateTime?
+  asset           FacilityAsset?     @relation(fields: [assetId], references: [id])
+  workOrder       FacilityWorkOrder? @relation(fields: [workOrderId], references: [id])
+
+  @@index([tenantId, complexId, statusCode, createdAt])
+  @@index([tenantId, residentKeyHash, createdAt])
+}
+
+model FacilityDocument {
+  id           String             @id @default(cuid())
+  tenantId     String
+  complexId    String
+  assetId      String?
+  entityType   String
+  entityId     String
+  typeCode     String
+  nameKo       String
+  tags         Json
+  version      Int
+  storageKey   String
+  mimeType     String
+  size         BigInt
+  sha256       String
+  visibility   FacilityVisibility
+  uploadedBy   String
+  uploadedAt   DateTime           @default(now())
+  deletedAt    DateTime?
+  asset        FacilityAsset?     @relation(fields: [assetId], references: [id])
+
+  @@unique([tenantId, entityType, entityId, nameKo, version])
+  @@index([tenantId, complexId, visibility, uploadedAt])
+}
+
+model FacilityAIInsight {
+  id                  String   @id @default(cuid())
+  tenantId            String
+  complexId           String
+  ruleCode            String
+  ruleVersion         String
+  titleKo             String
+  severityCode        String
+  confidenceCode      String
+  affectedAssetIds    Json
+  evidence            Json
+  expectedImpactKo    String
+  recommendedActionKo String
+  statusCode          String
+  generatedAt         DateTime
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  feedback            FacilityAIFeedback[]
+
+  @@index([tenantId, complexId, severityCode, generatedAt])
+  @@index([tenantId, ruleCode, ruleVersion])
+}
+
+model FacilityAIFeedback {
+  id          String            @id @default(cuid())
+  tenantId    String
+  insightId   String
+  actorId     String
+  helpful     Boolean
+  commentKo   String?
+  createdAt   DateTime          @default(now())
+  insight     FacilityAIInsight @relation(fields: [insightId], references: [id])
+
+  @@index([tenantId, insightId, createdAt])
+}
+
+model FacilityAuditLog {
+  id            String   @id @default(cuid())
+  tenantId      String
+  complexId     String
+  actorId       String
+  actorRoleCode String
+  actionCode    String
+  entityType    String
+  entityId      String
+  previousValue Json?
+  newValue      Json?
+  reasonKo      String?
+  occurredAt    DateTime @default(now())
+  createdAt     DateTime @default(now())
+
+  @@index([tenantId, complexId, occurredAt])
+  @@index([tenantId, entityType, entityId])
+}

@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "orbis-gantt-chart-e6363"
+  },
+  "targets": {
+    "orbis-gantt-chart-e6363": {
+      "hosting": {
+        "orbis-ai": [
+          "orbis-supervision-ai"
+        ]
+      }
+    }
+  }
+}

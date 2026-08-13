@@ -1,0 +1,4 @@
+import { OperationsPage } from "@/components/facility/operations-page";
+import { mockDashboardData } from "@/data/mockDashboard";
+
+export default function InspectionRequiredPage() { const source = mockDashboardData.assets.filter((asset) => asset.status !== "normal"); return <OperationsPage title="점검 필요 설비" subtitle="긴급도와 점검 기한을 기준으로 즉시 확인할 설비입니다." primaryAction="새 점검 배정" primaryActionHref="/inspections?action=new" columns={[{key:"urgency",label:"긴급도"},{key:"name",label:"객체"},{key:"type",label:"점검 유형"},{key:"dueDate",label:"기한"},{key:"remaining",label:"남은 기간"},{key:"assignee",label:"담당자"},{key:"status",label:"상태"}]} rows={source.map((asset, index) => ({ id: asset.id, urgency: asset.priority === "urgent" ? "긴급" : "높음", name: asset.name, type: index % 2 ? "성능 점검" : "안전 점검", dueDate: asset.nextInspectionAt, remaining: index === 0 ? "1일 초과" : `${index + 1}일 남음`, assignee: index % 2 ? "설비관리팀" : "안전관리팀", status: asset.priority === "urgent" ? "긴급" : "예정" }))} />; }
