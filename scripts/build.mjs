@@ -33,9 +33,9 @@ run("vinext", ["build"], {
   XDG_CONFIG_HOME: process.env.XDG_CONFIG_HOME ?? path.join(projectRoot, ".wrangler")
 });
 
-const metadataDirectory = path.join(projectRoot, "dist", ".openai");
-fs.mkdirSync(metadataDirectory, { recursive: true });
-fs.copyFileSync(
-  path.join(projectRoot, ".openai", "hosting.json"),
-  path.join(metadataDirectory, "hosting.json")
-);
+const hostingMetadata = path.join(projectRoot, ".openai", "hosting.json");
+if (fs.existsSync(hostingMetadata)) {
+  const metadataDirectory = path.join(projectRoot, "dist", ".openai");
+  fs.mkdirSync(metadataDirectory, { recursive: true });
+  fs.copyFileSync(hostingMetadata, path.join(metadataDirectory, "hosting.json"));
+}
