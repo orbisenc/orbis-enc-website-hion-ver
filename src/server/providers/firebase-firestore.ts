@@ -95,7 +95,8 @@ async function getIdToken(config: FirebaseServerConfig, tenantId: string, fetche
 function documentUrl(config: FirebaseServerConfig, tenantId: string, campaignId: string): string {
   const tenant = pathSegmentSchema.parse(tenantId);
   const campaign = pathSegmentSchema.parse(campaignId);
-  const base = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(config.projectId)}/databases/(default)/documents`;
+  const databaseId = process.env.NEXT_PUBLIC_FIRESTORE_DATABASE_ID?.trim() || "orbis-dnc";
+  const base = `https://firestore.googleapis.com/v1/projects/${encodeURIComponent(config.projectId)}/databases/${encodeURIComponent(databaseId)}/documents`;
   return `${base}/hionConsentRuntime/private/tenants/${encodeURIComponent(tenant)}/campaigns/${encodeURIComponent(campaign)}`;
 }
 
