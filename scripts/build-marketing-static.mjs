@@ -2,7 +2,7 @@ import { cp, mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 
 const origin = process.env.MARKETING_ORIGIN ?? "http://127.0.0.1:8788";
-const siteUrl = "https://orbis-dnc-official.web.app";
+const siteUrl = process.env.SITE_URL ?? "https://www.orbisdnc.com";
 const output = path.resolve("firebase-marketing-dist");
 const pages = [
   ["/", "index.html"],

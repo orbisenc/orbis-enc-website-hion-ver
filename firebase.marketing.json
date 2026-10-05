@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "orbis-dnc-official",
+    "site": "orbis-01-40b3b",
     "public": "firebase-marketing-dist",
     "ignore": ["firebase.marketing.json", "**/.*", "**/node_modules/**"],
     "cleanUrls": true,
