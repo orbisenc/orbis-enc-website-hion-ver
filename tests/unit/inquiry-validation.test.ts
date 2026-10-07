@@ -28,10 +28,16 @@ afterEach(() => {
 });
 
 describe("공식 웹사이트 문의 검증", () => {
-  it("필수 항목과 문의 내용 길이를 검증한다", () => {
-    const result = inquirySchema.safeParse({ ...validInquiry, email: "invalid", message: "짧음", privacyConsent: false });
+  it("필수 항목과 동의 여부를 검증한다", () => {
+    const result = inquirySchema.safeParse({ ...validInquiry, email: "invalid", privacyConsent: false });
     expect(result.success).toBe(false);
-    if (!result.success) expect(result.error.issues.map((issue) => issue.path[0])).toEqual(expect.arrayContaining(["email", "message", "privacyConsent"]));
+    if (!result.success) expect(result.error.issues.map((issue) => issue.path[0])).toEqual(expect.arrayContaining(["email", "privacyConsent"]));
+  });
+
+  it("문의 내용 없이도 정상적인 문의를 허용한다", () => {
+    const withoutMessage: Omit<typeof validInquiry, "message"> & { message?: never } = { ...validInquiry };
+    delete withoutMessage.message;
+    expect(inquirySchema.safeParse(withoutMessage).success).toBe(true);
   });
 
   it("정상적인 학교시설 문의를 허용한다", () => {

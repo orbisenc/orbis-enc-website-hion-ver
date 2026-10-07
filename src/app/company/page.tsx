@@ -1,16 +1,70 @@
 import type { Metadata } from "next";
+import Image from "next/image";
 import { MarketingPage } from "@/components/marketing/page-layout";
-import { BreadcrumbJsonLd, ButtonLink, FinalCta, PageHero, SectionHeading } from "@/components/marketing/shared";
-import { siteConfig } from "@/content/site";
+import { BreadcrumbJsonLd } from "@/components/marketing/shared";
 import { pageMetadata } from "@/lib/marketing/metadata";
 
-export const metadata: Metadata=pageMetadata({title:"회사소개 | ORBIS D&C",description:"건설 실무와 디지털 기술을 연결해 건물 정보를 운영 가능한 자산으로 만드는 ORBIS D&C를 소개합니다.",path:"/company"});
-const capabilities=[["건설 프로젝트와 시설 운영 실무","현장 조건과 운영자의 업무 흐름을 함께 이해합니다."],["Digital Twin·BIM·BAM","형상 정보가 유지관리 속성과 이력으로 이어지게 구성합니다."],["AI·IoT·LiDAR·드론 데이터 활용","목적과 가용 범위에 맞는 데이터를 운영 판단에 활용합니다."],["통합 구축과 장기 운영 지원","진단에서 데이터 구축, 플랫폼 운영으로 이어지는 체계를 만듭니다."]];
-const areas=[["현황진단과 컨설팅","기존 자료와 현장을 확인해 디지털 전환의 기준과 범위를 정리합니다."],["3D/BAM·시설자산 DB 구축","실제 현황을 반영한 모델과 시설자산 정보를 연결합니다."],["HiON 플랫폼 구축·운영","기관과 사용자 역할에 맞는 통합 운영 환경을 구성합니다."],["AI·IoT 기반 운영 고도화","축적된 데이터와 가용한 외부 정보를 활용해 관리 판단을 지원합니다."]];
-export default function CompanyPage(){return <MarketingPage><BreadcrumbJsonLd items={[{name:"홈",path:"/"},{name:"회사소개",path:"/company"}]}/><PageHero eyebrow="ABOUT ORBIS D&C" title="건설 디지털화와 운영 혁신을 선도하는 기업" body="오르비스디앤씨는 현장과 도면에 흩어진 건물 정보를 유지관리 가능한 디지털 자산으로 만들고, 이를 HiON과 AI에 연결하는 건설 디지털·운영 전문기업입니다." media={{src:"/images/orbis/construction-digital-site.jpg",alt:"건설 현장과 디지털 모델을 함께 확인하는 건설 디지털화 개념 이미지",caption:"현장과 디지털 데이터 연결 개념 · 회사소개서 제공 이미지",priority:true}}><ButtonLink href="/contact?type=partnership">사업 문의하기</ButtonLink></PageHero>
-<section className="section"><div className="marketing-container content-grid"><p className="content-aside">WHAT WE CONNECT</p><div><p className="prose-lead">건물을 완성하는 정보와 건물을 오래 운영하는 정보 사이의 단절을 연결합니다.</p><p>현장진단에서 확인한 사실을 디지털 자산으로 만들고, 점검과 작업 과정에서 다시 갱신되는 체계를 구축합니다. 검증되지 않은 규모나 실적보다 실제 업무에서 데이터가 어떻게 사용되는지를 중심에 둡니다.</p></div></div></section>
-<section className="section section-soft"><div className="marketing-container"><SectionHeading eyebrow="CAPABILITIES" title="현장, 데이터, 운영을 함께 보는 역량"/><div className="business-grid">{capabilities.map(([t,b])=><article key={t}><h3>{t}</h3><p>{b}</p></article>)}</div></div></section>
-<section className="section"><div className="marketing-container"><SectionHeading eyebrow="BUSINESS AREAS" title="진단부터 운영 고도화까지"/><div className="business-grid">{areas.map(([t,b])=><article key={t}><h3>{t}</h3><p>{b}</p></article>)}</div></div></section>
-<section className="section section-soft"><div className="marketing-container company-philosophy"><p className="eyebrow eyebrow-light">OPERATING PHILOSOPHY</p><blockquote>현장의 정확한 데이터로,<br/>데이터를 실제적인 운영으로,<br/>운영의 개선을 건물의 가치로 연결합니다.</blockquote></div></section>
-<section className="section"><div className="marketing-container content-grid"><p className="content-aside">CONTACT &amp; LOCATION</p><div><SectionHeading title="ORBIS D&C를 만나보세요"/><dl className="contact-details"><div><dt>회사명</dt><dd>{siteConfig.legalName}</dd></div><div><dt>주소</dt><dd>{siteConfig.address}</dd></div><div><dt>전화</dt><dd><a href={`tel:${siteConfig.telephone.replaceAll("-","")}`}>{siteConfig.telephone}</a></dd></div><div><dt>팩스</dt><dd>{siteConfig.fax}</dd></div></dl></div></div></section>
-<FinalCta title="건물 정보를 운영 가능한 자산으로 전환할 준비가 되셨나요?" body="도입, 기술 연계와 사업 협력 범위를 함께 검토합니다." href="/contact?type=partnership" label="사업 문의하기"/></MarketingPage>}
+export const metadata: Metadata = pageMetadata({
+  title: "회사소개 | ORBIS D&C",
+  description: "현장과 도면에 흩어진 건물 정보를 디지털 자산으로 만들고 디지털 트윈과 AI에 연결하는 ORBIS D&C를 소개합니다.",
+  path: "/company",
+});
+
+export default function CompanyPage() {
+  return (
+    <MarketingPage>
+      <BreadcrumbJsonLd items={[{ name: "홈", path: "/" }, { name: "회사소개", path: "/company" }]} />
+
+      <section className="company-hero-custom" aria-label="오르비스 회사소개">
+        <div className="marketing-container company-hero-custom-grid">
+          <div className="company-hero-logo" aria-label="ORBIS 로고">
+            <Image
+              src="/images/orbis/company-signature-white-extracted.png"
+              alt="ORBIS"
+              width={480}
+              height={310}
+              priority
+              quality={100}
+              unoptimized
+            />
+          </div>
+          <div className="company-hero-copy">
+            <h1>
+              <span>가상과 현실을 연결하는 커맨드 센터,</span>
+              <span>건설의 미래를 데이터로 지배하다</span>
+            </h1>
+            <p>
+              오르비스는 현장과 도면에 흩어진 건물 정보를<br />
+              유지관리 가능한 디지털 자산으로 만들고,<br />
+              이를 디지털 트윈과 AI에 연결하는 건설 디지털·운영 전문기업입니다.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section className="company-image-section company-history-section" aria-label="대표 연혁">
+        <div className="marketing-container company-image-wrap company-image-wrap-wide">
+          <Image
+            src="/images/orbis/ceo-history.png"
+            alt="오르비스디앤씨 대표 연혁"
+            width={8000}
+            height={4500}
+            sizes="(max-width: 760px) 100vw, 92vw"
+          />
+        </div>
+      </section>
+
+      <section className="company-image-section company-organization-section" aria-label="조직도">
+        <div className="marketing-container company-image-wrap company-image-wrap-portrait">
+          <Image
+            src="/images/orbis/orbis-organization-2026.png"
+            alt="2026 오르비스 조직도"
+            width={2340}
+            height={3124}
+            sizes="(max-width: 760px) 100vw, 72vw"
+          />
+        </div>
+      </section>
+    </MarketingPage>
+  );
+}

@@ -5,7 +5,14 @@ import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { navigation } from "@/content/site";
+
+const navigation = [
+  { label: "Company", href: "/company" },
+  { label: "Technology", href: "/solutions" },
+  { label: "HiON School", href: "/industries/education" },
+  { label: "Projects", href: "/projects" },
+  { label: "Contact", href: "/contact" },
+];
 
 function isCurrent(pathname: string, href: string) {
   return pathname === href || (href !== "/" && pathname.startsWith(`${href}/`));
@@ -57,7 +64,7 @@ export function MarketingHeader() {
           event.preventDefault();
           window.location.assign("/");
         }}>
-          <Image className="brand-logo" src="/images/orbis/orbis-dnc-logo.png" width={150} height={74} alt="" priority />
+          <Image className="brand-logo brand-logo-header" src="/images/orbis/signature-vertical.png" width={1241} height={865} alt="" priority />
         </Link>
         <nav className="desktop-nav" aria-label="주요 메뉴">
           {navigation.map((item) => (

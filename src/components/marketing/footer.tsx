@@ -1,6 +1,15 @@
 import Link from "next/link";
 import Image from "next/image";
-import { footerNavigation, siteConfig } from "@/content/site";
+import { siteConfig } from "@/content/site";
+
+const footerNavigation = [
+  { label: "Company", href: "/company" },
+  { label: "Technology", href: "/solutions" },
+  { label: "HiON School", href: "/industries/education" },
+  { label: "Projects", href: "/projects" },
+  { label: "Contact", href: "/contact" },
+  { label: "Privacy", href: "/privacy" },
+];
 
 export function MarketingFooter() {
   return (
@@ -8,7 +17,7 @@ export function MarketingFooter() {
       <div className="marketing-container footer-main">
         <div>
           <Link className="wordmark wordmark-light" href="/" aria-label="ORBIS D&C 홈">
-            <Image className="brand-logo brand-logo-footer" src="/images/orbis/orbis-dnc-logo.png" width={170} height={84} alt="" />
+            <Image className="brand-logo brand-logo-footer" src="/images/orbis/signature-vertical-white.png" width={1241} height={865} alt="" />
           </Link>
           <p className="footer-brand-line">{siteConfig.brandLine}</p>
         </div>

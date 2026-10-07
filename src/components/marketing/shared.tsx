@@ -30,11 +30,13 @@ export function HeroMedia({ src, alt, caption, priority = false }: MarketingImag
 }
 
 export function PageHero({ eyebrow, title, body, children, media }: { eyebrow: string; title: string; body: string; children?: ReactNode; media?: MarketingImage }) {
+  const eyebrowText = eyebrow.trim();
+
   return (
     <section className="page-hero">
       <div className="marketing-container page-hero-grid">
         <div>
-          <p className="eyebrow eyebrow-light">{eyebrow}</p>
+          {eyebrowText ? <p className="eyebrow eyebrow-light">{eyebrowText}</p> : null}
           <h1>{title}</h1>
           <p className="hero-body">{body}</p>
           {children ? <div className="hero-actions">{children}</div> : null}

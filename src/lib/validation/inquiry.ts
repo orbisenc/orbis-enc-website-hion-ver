@@ -14,7 +14,7 @@ export const inquirySchema = z.object({
   facilityType: z.enum(facilityTypes, { error: "시설 유형을 선택해 주세요." }),
   facilityScale: optionalText(100),
   desiredTiming: optionalText(100),
-  message: z.string().trim().min(20, "문의 내용은 20자 이상 입력해 주세요.").max(1000, "문의 내용은 1,000자 이하로 입력해 주세요."),
+  message: optionalText(1000),
   privacyConsent: z.literal(true, { error: "개인정보 수집·이용에 동의해 주세요." }),
   website: z.string().max(0, "요청을 처리할 수 없습니다.").optional().default(""),
 });

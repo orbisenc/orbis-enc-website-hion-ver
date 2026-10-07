@@ -15,7 +15,7 @@ function payloadFrom(form: HTMLFormElement) {
     inquiryType: inputValue(data,"inquiryType"), organization: inputValue(data,"organization"), name: inputValue(data,"name"),
     department: inputValue(data,"department"), email: inputValue(data,"email"), phone: inputValue(data,"phone"),
     facilityType: inputValue(data,"facilityType"), facilityScale: inputValue(data,"facilityScale"), desiredTiming: inputValue(data,"desiredTiming"),
-    message: inputValue(data,"message"), privacyConsent: data.get("privacyConsent") === "on", website: inputValue(data,"website"),
+    privacyConsent: data.get("privacyConsent") === "on", website: inputValue(data,"website"),
   };
 }
 
@@ -41,8 +41,8 @@ export function ContactForm({ defaults = {} }: { defaults?: Defaults }) {
     finally{setPending(false);requestAnimationFrame(()=>statusRef.current?.focus());}
   }
 
-  const field=(name:string,label:string,required:boolean,input:React.ReactNode)=><div className={`form-field ${name==="message"?"form-field-full":""}`}><label htmlFor={name}>{label}{required?<span className="required-mark" aria-hidden="true"> *</span>:null}</label>{input}{errors[name]?<p className="form-error" id={`${name}-error`}>{errors[name]}</p>:null}</div>;
-  const props=(name:string)=>({id:name,name,className:"marketing-input",required:["inquiryType","organization","name","email","phone","facilityType","message"].includes(name),"aria-invalid":Boolean(errors[name]),"aria-describedby":errors[name]?`${name}-error`:undefined});
+  const field=(name:string,label:string,required:boolean,input:React.ReactNode)=><div className="form-field"><label htmlFor={name}>{label}{required?<span className="required-mark" aria-hidden="true"> *</span>:null}</label>{input}{errors[name]?<p className="form-error" id={`${name}-error`}>{errors[name]}</p>:null}</div>;
+  const props=(name:string)=>({id:name,name,className:"marketing-input",required:["inquiryType","organization","name","email","phone","facilityType"].includes(name),"aria-invalid":Boolean(errors[name]),"aria-describedby":errors[name]?`${name}-error`:undefined});
   return <form className="contact-form" noValidate onSubmit={onSubmit} onFocus={()=>trackMarketingEvent({event:"contact_form_started",page:"/contact"})}>
     <div className="honeypot" aria-hidden="true"><label htmlFor="website">웹사이트</label><input id="website" name="website" tabIndex={-1} autoComplete="off" /></div>
     <div className="form-grid">
@@ -55,7 +55,6 @@ export function ContactForm({ defaults = {} }: { defaults?: Defaults }) {
       {field("facilityType","시설 유형",true,<select {...props("facilityType")} defaultValue={defaults.facilityType??""}><option value="" disabled>선택해 주세요</option>{facilityTypes.map(v=><option key={v}>{v}</option>)}</select>)}
       {field("facilityScale","대상 규모",false,<input {...props("facilityScale")} placeholder="예: 3개 동, 연면적 등" />)}
       {field("desiredTiming","도입 시기",false,<input {...props("desiredTiming")} placeholder="예: 검토 중, 2027년 상반기" />)}
-      {field("message","문의 내용",true,<><textarea {...props("message")} minLength={20} maxLength={1000} /><p className="form-help">20자 이상 1,000자 이하로 작성해 주세요.</p></>)}
     </div>
     <label className="consent-box"><input id="privacyConsent" name="privacyConsent" type="checkbox" required aria-invalid={Boolean(errors.privacyConsent)} aria-describedby={errors.privacyConsent?"privacyConsent-error":undefined}/><span>개인정보 수집·이용에 동의합니다. <span className="required-mark">필수</span><small>문의 응대를 위해 입력한 정보를 사용합니다. 자세한 내용은 개인정보처리방침에서 확인할 수 있습니다.</small>{errors.privacyConsent?<small className="form-error" id="privacyConsent-error">{errors.privacyConsent}</small>:null}</span></label>
     {status?<div ref={statusRef} className={`form-status ${status.kind}`} role={status.kind==="error"?"alert":"status"} tabIndex={-1}>{status.message}</div>:null}
