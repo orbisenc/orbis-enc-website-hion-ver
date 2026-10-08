@@ -1135,10 +1135,10 @@
   position: absolute;
   z-index: 2;
   right: auto;
-  bottom: clamp(78px, 9.6vh, 112px);
+  bottom: clamp(88px, 10.4vh, 118px);
   left: 50%;
   width: min(1320px, calc(100% - 88px));
-  transform: translate(-50%, clamp(-108px, -9vh, -78px));
+  transform: translateX(-50%);
   display: grid;
   min-height: 110px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
