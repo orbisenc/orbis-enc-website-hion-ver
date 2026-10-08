@@ -2,15 +2,14 @@ export type NavItem = { label: string; href: string };
 
 export const siteConfig = {
   name: "ORBIS D&C",
-  legalName: "(주)오르비스디앤씨",
+  legalName: "(주)오르비스이앤씨",
   brandLine: "Building the Digital Future",
   description:
     "오르비스디앤씨는 현황진단, BAM, 시설자산화, 통합운영, AI 예측관리까지 건물 운영 전 과정을 데이터 기반 체계로 전환합니다.",
   url: process.env.NEXT_PUBLIC_SITE_URL ?? "https://www.orbisdnc.com",
-  telephone: "010-5605-2447",
+  telephone: "010-2577-2447",
   fax: "02-6008-5189",
-  address: "경기도 수원시 영통구 법조로 25, A동 3205호",
-  website: "www.orbisdnc.com",
+  address: "서울특별시 강남구 영동대로 405, 7층",
   email: null,
   representative: null,
   businessRegistrationNumber: null,

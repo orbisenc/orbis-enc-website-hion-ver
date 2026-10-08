@@ -33,7 +33,6 @@ export function MarketingFooter() {
         <div className="footer-contact">
           <a href={`tel:${siteConfig.telephone.replaceAll("-", "")}`}>전화 {siteConfig.telephone}</a>
           <span>팩스 {siteConfig.fax}</span>
-          <a href={siteConfig.url}>웹사이트 {siteConfig.website}</a>
         </div>
       </div>
       <div className="marketing-container footer-bottom">
