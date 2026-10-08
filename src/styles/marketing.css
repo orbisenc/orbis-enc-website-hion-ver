@@ -341,12 +341,12 @@
 }
 
 @media (min-width: 1051px) {
-  .home-hero-redesign { width: min(2040px, calc(100% - 140px)); align-items: center; grid-template-columns: minmax(700px,.94fr) minmax(760px,1.06fr); gap: clamp(24px, 2.6vw, 52px); padding-block: clamp(34px, 4.2vw, 58px) 64px; }
+  .home-hero-redesign { width: min(1920px, calc(100% - 104px)); align-items: center; grid-template-columns: minmax(0,.95fr) minmax(0,1.05fr); gap: clamp(54px, 4vw, 84px); padding-block: clamp(34px, 4.2vw, 58px) 64px; }
   .home-hero-redesign h1 { max-width: 850px; margin-bottom: 26px; font-size: clamp(3.1rem, 3.3vw, 4.25rem); }
   .home-hero-redesign .hero-eyebrow { margin-bottom: 22px; font-size: clamp(.94rem, 1vw, 1.12rem); }
   .hero-lead { font-size: clamp(1.28rem, 1.55vw, 1.78rem); }
   .home-hero-redesign .hero-body { max-width: 820px; font-size: clamp(1.04rem, 1.16vw, 1.22rem); }
-  .home-hero-copy { transform: translateX(clamp(90px, 6.2vw, 138px)); }
+  .home-hero-copy { position: relative; z-index: 3; transform: none; }
   .hero-title-line { white-space: nowrap; }
   .home-hero-redesign h1 em { white-space: nowrap; }
   .hero-pill-row { gap: 14px; margin-top: 30px; }
@@ -357,7 +357,7 @@
   .home-hero-redesign .hero-actions { margin-top: 28px; }
   .home-hero-redesign .button-primary { min-width: 230px; min-height: 58px; font-size: 1.04rem; }
   .home-hero-redesign .button-secondary { min-width: 250px; min-height: 58px; font-size: 1.04rem; }
-  .hero-digital-scene { align-self: center; min-height: min(760px, calc(100vh - 150px)); margin-right: 0; transform: translateX(clamp(-72px, -2.5vw, -42px)); }
+  .hero-digital-scene { z-index: 1; align-self: center; min-height: min(760px, calc(100vh - 150px)); margin-right: 0; transform: none; }
 }
 @media (max-width: 760px) {
   .home-hero-redesign h1 { font-size: clamp(2.8rem, 14vw, 4.4rem); line-height: 1.08; }
