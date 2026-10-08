@@ -3,8 +3,10 @@
 import { useEffect, useRef } from "react";
 
 const LOCK_MS = 760;
-const MIN_WHEEL_DELTA = 12;
+const MIN_WHEEL_DELTA = 8;
 const SECTION_SELECTOR = "main > section, .marketing-footer";
+const DESKTOP_QUERY = "(min-width: 1051px)";
+const EDITABLE_SELECTOR = "input, textarea, select, [contenteditable='true']";
 
 function getVisibleSections(container: HTMLElement) {
   return Array.from(container.querySelectorAll<HTMLElement>(SECTION_SELECTOR)).filter((element) => {
@@ -43,29 +45,46 @@ export function SectionWheelScroll() {
 
     const scrollToSection = (direction: 1 | -1) => {
       const now = window.performance.now();
-      if (now < lockedUntilRef.current) return;
+      if (now < lockedUntilRef.current) return true;
 
       const sections = getVisibleSections(container);
-      if (sections.length < 2) return;
+      if (sections.length < 2) return false;
 
       const currentIndex = getCurrentSectionIndex(container, sections);
       const targetIndex = Math.min(Math.max(currentIndex + direction, 0), sections.length - 1);
-      if (targetIndex === currentIndex) return;
+      if (targetIndex === currentIndex) return false;
 
       lockedUntilRef.current = now + LOCK_MS;
       container.scrollTo({
         top: getScrollTarget(container, sections[targetIndex]),
         behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
       });
+      return true;
     };
 
     const handleWheel = (event: WheelEvent) => {
-      if (event.ctrlKey || Math.abs(event.deltaY) < MIN_WHEEL_DELTA) return;
+      const target = event.target;
+      const deltaY = event.deltaY * (event.deltaMode === 1 ? 16 : event.deltaMode === 2 ? window.innerHeight : 1);
+
+      if (
+        event.ctrlKey ||
+        !window.matchMedia(DESKTOP_QUERY).matches ||
+        Math.abs(deltaY) < MIN_WHEEL_DELTA ||
+        Math.abs(event.deltaX) > Math.abs(deltaY) ||
+        (target instanceof Element && target.closest(EDITABLE_SELECTOR))
+      ) {
+        return;
+      }
+
+      const handled = scrollToSection(deltaY > 0 ? 1 : -1);
+      if (!handled) return;
+
       event.preventDefault();
-      scrollToSection(event.deltaY > 0 ? 1 : -1);
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (!window.matchMedia(DESKTOP_QUERY).matches) return;
+
       const activeElement = document.activeElement;
       const isEditing =
         activeElement instanceof HTMLInputElement ||
@@ -76,21 +95,19 @@ export function SectionWheelScroll() {
       if (isEditing) return;
 
       if (event.key === "ArrowDown" || event.key === "PageDown" || event.key === " ") {
-        event.preventDefault();
-        scrollToSection(1);
+        if (scrollToSection(1)) event.preventDefault();
       }
 
       if (event.key === "ArrowUp" || event.key === "PageUp") {
-        event.preventDefault();
-        scrollToSection(-1);
+        if (scrollToSection(-1)) event.preventDefault();
       }
     };
 
-    container.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("wheel", handleWheel, { passive: false, capture: true });
     window.addEventListener("keydown", handleKeyDown);
 
     return () => {
-      container.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("wheel", handleWheel, { capture: true });
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, []);

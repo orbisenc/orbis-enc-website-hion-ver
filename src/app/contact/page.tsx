@@ -22,7 +22,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   return (
     <MarketingPage>
       <BreadcrumbJsonLd items={[{ name: "홈", path: "/" }, { name: "문의", path: "/contact" }]} />
-      <section className="section section-soft">
+      <section className="section section-soft contact-section">
         <div className="marketing-container contact-layout">
           <div className="contact-info">
             <h1><span>디지털로 연결하고,</span><span>AI로 운영하세요.</span></h1>

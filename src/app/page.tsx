@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import { AlertTriangle, BellRing, Box, BrainCircuit, Building2, CheckCircle2, ClipboardCheck, Compass, Cpu, Database, FolderOpen, ScrollText, Settings, ShieldCheck, TrendingUp } from "lucide-react";
+import { Box, BrainCircuit, Building2, ClipboardCheck, Compass, Cpu, Database, FolderOpen, ScrollText, Settings } from "lucide-react";
 import { siteConfig } from "@/content/site";
 import { pageMetadata } from "@/lib/marketing/metadata";
 import { MarketingPage } from "@/components/marketing/page-layout";
@@ -147,102 +147,15 @@ export default function HomePage() {
             <h2>사후관리에서 <em>사전예측관리로</em></h2>
             <p>고장 발생 후 대응하는 시설관리를 고장 전 예측하는 관리로 변화합니다.</p>
           </div>
-          <div className="predictive-operation-board">
-            <article className="reactive-panel">
-              <div className="predictive-panel-title reactive-title">
-                <span><AlertTriangle aria-hidden="true" /></span>
-                <strong>기존 사후대응</strong>
-              </div>
-              <div className="reactive-image-stack">
-                <Image src="/images/orbis/predictive-reactive-incidents.png" alt="누수, 냉난방 고장, 수기 점검 기록이 함께 보이는 기존 사후대응 이미지" fill sizes="(max-width: 1050px) 100vw, 28vw" />
-                {["누수 발생", "냉난방 고장", "수기기록·보고"].map((label) => (
-                  <div className="reactive-alert" key={label}>
-                    <span>!</span>
-                    <strong>{label}</strong>
-                  </div>
-                ))}
-              </div>
-            </article>
-            <div className="predictive-arrow" aria-hidden="true">→</div>
-            <article className="hion-predictive-panel">
-              <div className="predictive-panel-title hion-title">
-                <span><CheckCircle2 aria-hidden="true" /></span>
-                <strong>HiON 예측관리</strong>
-                <small>데이터가 알려주는, 더 안전한 학교</small>
-              </div>
-              <div className="predictive-feature-strip">
-                {[
-                  { icon: Box, title: "디지털 트윈 모니터링", body: "3D 기반 학교 시설의 실시간 상태 모니터링" },
-                  { icon: Database, title: "예측 기반 정비 계획", body: "설비 상태를 분석하여 최적의 정비 시점과 계획을 제시" },
-                  { icon: BrainCircuit, title: "AI 이상 알림", body: "이상 징후를 사전에 감지하여 신속한 대응을 지원" },
-                ].map(({ icon: Icon, title, body }) => (
-                  <div key={title}>
-                    <span><Icon aria-hidden="true" /></span>
-                    <strong>{title}</strong>
-                    <p>{body}</p>
-                  </div>
-                ))}
-              </div>
-              <div className="predictive-dashboard-grid">
-                <div className="predictive-dashboard-card twin-card">
-                  <div className="predictive-card-header">
-                    <strong>3D 기반 시설 모니터링</strong>
-                    <span>›</span>
-                  </div>
-                  <div className="twin-image">
-                    <Image src="/images/orbis/predictive-digital-twin-dashboard.png" alt="학교 시설의 3D 디지털 트윈 모니터링 대시보드" fill sizes="(max-width: 1050px) 100vw, 28vw" />
-                  </div>
-                </div>
-                <div className="predictive-dashboard-card plan-card">
-                  <div className="predictive-card-header">
-                    <strong>설비 예측 분석 및 정비 계획</strong>
-                    <span>›</span>
-                  </div>
-                  <div className="maintenance-table" aria-label="설비 예측 정비 계획">
-                    {[
-                      ["냉난방 설비", "정상", "30일 이내"],
-                      ["전기 설비", "정상", "60일 이내"],
-                      ["펌프 설비", "주의", "90일 이내"],
-                      ["급수 설비", "정상", "정상"],
-                    ].map(([name, status, timing]) => (
-                      <div key={name}>
-                        <strong>{name}</strong>
-                        <span className={status === "주의" ? "status-caution" : "status-good"}>{status}</span>
-                        <small>{timing}</small>
-                        <i />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-                <div className="predictive-dashboard-card alert-card">
-                  <div className="predictive-card-header">
-                    <strong>AI 이상 알림</strong>
-                    <span>›</span>
-                  </div>
-                  <div className="alert-banner">
-                    <BellRing aria-hidden="true" />
-                    <strong>이상 징후 감지</strong>
-                    <p>급수 펌프 진동 수치 상승이 감지되었습니다.</p>
-                  </div>
-                  <div className="alert-device-image">
-                    <Image src="/images/orbis/predictive-ai-alert-dashboard.png" alt="노트북과 모바일에 표시된 AI 이상 감지 알림 대시보드" fill sizes="(max-width: 1050px) 100vw, 28vw" />
-                  </div>
-                </div>
-              </div>
-            </article>
-          </div>
-          <div className="predictive-benefit-bar">
-            {[
-              { icon: ShieldCheck, title: "고장 예방", body: "이상 징후 사전 감지" },
-              { icon: Database, title: "비용 절감", body: "계획 정비로 불필요한 비용 감소" },
-              { icon: TrendingUp, title: "데이터 기반 의사결정", body: "정확한 데이터로 효율적 관리" },
-            ].map(({ icon: Icon, title, body }) => (
-              <div key={title}>
-                <span><Icon aria-hidden="true" /></span>
-                <strong>{title}</strong>
-                <p>{body}</p>
-              </div>
-            ))}
+          <div className="predictive-infographic-image">
+            <Image
+              src="/images/orbis/predictive-management-system-infographic.png"
+              alt="기존 사후대응 방식에서 사전예측관리 시스템으로 전환되는 과정을 보여주는 인포그래픽"
+              fill
+              sizes="(max-width: 1050px) 100vw, 92vw"
+              priority
+              unoptimized
+            />
           </div>
         </div>
       </section>
