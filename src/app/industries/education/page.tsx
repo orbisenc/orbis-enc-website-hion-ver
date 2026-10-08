@@ -317,7 +317,7 @@ function EducationPageSeven() {
     <section className="hion-deck-section hion-keiis-section" aria-label="KEIIS와 HiON의 역할">
       <div className="hion-code-slide hion-code-slide-keiis">
         <header className="hion-code-heading">
-          <h2><em>KEIIS</em>는 행정의 기준, <em>HiON</em>은 현장 운영의 기준</h2>
+          <h2><em className="hion-keiis-word">KEIIS</em>는 행정의 기준, <em className="hion-hion-word">HiON</em>은 현장 운영의 기준</h2>
           <p>HiON은 KEIIS를 대체하는 시스템이 아니라, 학교시설 운영·유지관리를 디지털화하고 필요한 행정정보를 연결하는 플랫폼입니다.</p>
         </header>
         <div className="hion-keiis-infographic" aria-label="KEIIS와 HiON 역할 비교 인포그래픽">
