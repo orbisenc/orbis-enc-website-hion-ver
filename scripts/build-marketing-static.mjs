@@ -10,14 +10,15 @@ const pages = [
   ["/solutions", "solutions/index.html"],
   ["/industries/education", "industries/education/index.html"],
   ["/company", "company/index.html"],
+  ["/projects", "projects/index.html"],
   ["/contact", "contact/index.html"],
   ["/privacy", "privacy/index.html"],
 ];
 
-const mobileNav = `<div class="static-mobile-nav" hidden><nav aria-label="모바일 주요 메뉴"><a href="/">HiON</a><a href="/solutions">솔루션</a><a href="/industries/education">학교·교육시설</a><a href="/company">회사소개</a><a href="/contact">도입 상담하기</a></nav></div>`;
+const mobileNav = `<div class="static-mobile-nav" hidden><nav aria-label="모바일 주요 메뉴"><a href="/company">Company</a><a href="/solutions">Technology</a><a href="/industries/education">HiON School</a><a href="/projects">Projects</a><a href="/contact">Contact</a></nav></div>`;
 const staticStyle = `<style>.static-mobile-nav{position:absolute;z-index:60;top:100%;right:0;left:0;padding:18px;background:#fff;border-top:1px solid #e0e5ec;box-shadow:0 18px 35px rgba(7,27,73,.14)}.static-mobile-nav nav{display:grid}.static-mobile-nav a{padding:14px 8px;border-bottom:1px solid #e6eaf0;color:#071b49;font-weight:750}.static-mobile-nav a:last-child{margin-top:10px;border:0;border-radius:4px;background:#071b49;color:#fff;text-align:center}.marketing-header{position:sticky}@media(min-width:1051px){.static-mobile-nav{display:none!important}}</style>`;
 const staticScript = `<script>document.addEventListener("DOMContentLoaded",function(){document.querySelectorAll("a.wordmark[href='/']").forEach(function(link){link.addEventListener("click",function(event){event.preventDefault();fetch("/",{cache:"reload"}).finally(function(){window.location.assign("/")})})});var button=document.querySelector(".menu-trigger"),menu=document.querySelector(".static-mobile-nav");if(!button||!menu)return;button.addEventListener("click",function(){var open=menu.hasAttribute("hidden");if(open)menu.removeAttribute("hidden");else menu.setAttribute("hidden","");button.setAttribute("aria-expanded",String(open));button.setAttribute("aria-label",open?"메뉴 닫기":"메뉴 열기")});document.addEventListener("keydown",function(event){if(event.key==="Escape"){menu.setAttribute("hidden","");button.setAttribute("aria-expanded","false")}})});</script>`;
-const contactNotice = `<section class="contact-form" aria-labelledby="static-contact-title"><p class="eyebrow">DIRECT CONTACT</p><h2 id="static-contact-title">상담 접수 채널을 준비하고 있습니다.</h2><p>온라인 문의 내용이 안전하게 전달되도록 접수 채널을 점검 중입니다. 현재는 아래 전화번호로 문의해 주세요.</p><a class="marketing-button button-primary form-submit" href="tel:01056052447">010-5605-2447로 전화하기</a></section>`;
+const contactNotice = `<section class="contact-form" aria-labelledby="static-contact-title"><p class="eyebrow">DIRECT CONTACT</p><h2 id="static-contact-title">상담 접수 채널을 준비하고 있습니다.</h2><p>온라인 상담 채널을 점검 중입니다. 현재는 아래 전화번호로 문의해 주세요.</p><a class="marketing-button button-primary form-submit" href="tel:01056052447">010-5605-2447로 전화하기</a></section>`;
 
 function transform(html, pathname) {
   return html
